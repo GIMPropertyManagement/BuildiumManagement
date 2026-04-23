@@ -643,6 +643,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .wall-of-shame .task-sub {
   font-family: var(--font-ui);
@@ -650,6 +653,48 @@
   color: var(--fg-4);
   margin-top: 2px;
   letter-spacing: 0.3px;
+}
+
+/* Clickable task cell — whole title+sub block is one link */
+.task-link {
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+  font-weight: inherit;
+  cursor: pointer;
+}
+.task-link:hover .task-title {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.task-link:hover {
+  opacity: 1;
+}
+.task-link-icon {
+  color: var(--fg-4);
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+  flex-shrink: 0;
+}
+.task-link:hover .task-link-icon {
+  opacity: 1;
+  color: var(--primary);
+}
+
+/* Callout-embedded task link (scorecard) */
+.callout-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--fg-4);
+}
+.callout-link:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  opacity: 1;
+}
+.callout-link strong {
+  font-weight: 600;
 }
 
 /* ---------- Finance ---------- */
@@ -776,6 +821,110 @@
 }
 .healthy-details summary::-webkit-details-marker {
   display: none;
+}
+
+/* ---------- Collections ---------- */
+.collections-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.bucket-switch {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--white);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  box-shadow: var(--shadow-card);
+}
+.bucket-switch button {
+  background: transparent;
+  color: var(--fg-3);
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.bucket-switch button:hover {
+  color: var(--fg-1);
+  opacity: 1;
+}
+.bucket-switch button.active {
+  background: linear-gradient(var(--primary), var(--primary-light));
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(4, 150, 255, 0.25);
+}
+.bucket-switch button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--fg-4);
+  width: 320px;
+  max-width: 100%;
+  box-shadow: var(--shadow-card);
+}
+.search-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--fg-1);
+}
+.search-field input::placeholder {
+  color: var(--fg-4);
+}
+
+.collection-group {
+  padding: 0;
+}
+.collection-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 30px;
+  cursor: pointer;
+  user-select: none;
+}
+.collection-group-head h3 {
+  margin-bottom: 6px;
+  font-size: 17px;
+}
+.collection-group-head .card-sub {
+  margin-bottom: 0;
+}
+.collection-group table {
+  border-top: 1px solid var(--divider);
+}
+.collection-group table th,
+.collection-group table td {
+  padding: 10px 18px;
+}
+.collection-group table th:first-child,
+.collection-group table td:first-child {
+  padding-left: 30px;
+}
+.collection-group table th:last-child,
+.collection-group table td:last-child {
+  padding-right: 30px;
 }
 
 /* ---------- Chart card ---------- */

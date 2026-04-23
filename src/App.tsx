@@ -3,11 +3,11 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { Dashboard } from './components/Dashboard';
 import { FinancePage } from './components/FinancePage';
-
-type Page = 'tasks' | 'finance';
+import { CollectionsPage } from './components/CollectionsPage';
+import type { DashboardPage } from './components/TopBar';
 
 function App() {
-  const [page, setPage] = useState<Page>('tasks');
+  const [page, setPage] = useState<DashboardPage>('tasks');
 
   return (
     <Authenticator hideSignUp={false}>
@@ -17,6 +17,15 @@ function App() {
         if (page === 'finance') {
           return (
             <FinancePage
+              onSignOut={onSignOut}
+              userEmail={email}
+              onNavigate={setPage}
+            />
+          );
+        }
+        if (page === 'collections') {
+          return (
+            <CollectionsPage
               onSignOut={onSignOut}
               userEmail={email}
               onNavigate={setPage}

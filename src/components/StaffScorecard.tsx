@@ -1,4 +1,5 @@
 import type { StaffMetrics } from '../buildium/metrics';
+import { buildiumTaskUrl } from '../buildium/metrics';
 
 interface Props {
   staff: StaffMetrics;
@@ -74,8 +75,17 @@ export function StaffScorecard({ staff, rank }: Props) {
 
       {staff.longestSilenceTask ? (
         <div className="scorecard-callout">
-          Quietest task: <strong>{staff.longestSilenceTask.Title}</strong> —{' '}
-          {staff.longestSilenceDays}d since update
+          Quietest task:{' '}
+          <a
+            className="callout-link"
+            href={buildiumTaskUrl(staff.longestSilenceTask.Id)}
+            target="_blank"
+            rel="noreferrer"
+            title="Open in Buildium"
+          >
+            <strong>{staff.longestSilenceTask.Title}</strong>
+          </a>{' '}
+          — {staff.longestSilenceDays}d since update
         </div>
       ) : null}
     </div>

@@ -383,3 +383,7 @@ export function categoryLabel(t: BuildiumTask): string {
     ? `${t.Category.Name} / ${t.Category.SubCategory.Name}`
     : t.Category.Name;
 }
+
+export function buildiumTaskUrl(taskId: number): string {
+  return `https://gimpm.managebuilding.com/manager/app/tasks/${taskId}/task-summary?searchOption=all`;
+}

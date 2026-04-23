@@ -28,6 +28,14 @@ const ALLOWED_PATH_PATTERNS: RegExp[] = [
   /^\/v1\/glaccounts$/,
   /^\/v1\/glaccounts\/\d+$/,
   /^\/v1\/glaccounts\/balances$/,
+  // Collections endpoints
+  /^\/v1\/associations\/owners$/,
+  /^\/v1\/associations\/owners\/\d+$/,
+  /^\/v1\/associations\/ownershipaccounts$/,
+  /^\/v1\/associations\/ownershipaccounts\/\d+$/,
+  /^\/v1\/associations\/ownershipaccounts\/outstandingbalances$/,
+  /^\/v1\/associations\/units$/,
+  /^\/v1\/associations\/units\/\d+$/,
 ];
 
 function isAllowed(path: string): boolean {

@@ -8,10 +8,12 @@ import { StaffScorecard } from './StaffScorecard';
 import { CategoryBar, PriorityPie, StatusPie, ThroughputLine } from './Charts';
 import type { StaffMetrics } from '../buildium/metrics';
 
+import type { DashboardPage } from './TopBar';
+
 interface DashboardProps {
   onSignOut: () => void;
   userEmail?: string;
-  onNavigate: (page: 'tasks' | 'finance') => void;
+  onNavigate: (page: DashboardPage) => void;
 }
 
 function timeAgo(d: Date) {

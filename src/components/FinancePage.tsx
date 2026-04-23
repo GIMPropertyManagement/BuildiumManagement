@@ -6,10 +6,12 @@ import { SlaTable } from './finance/SlaTable';
 import { ContaminationTable } from './finance/ContaminationTable';
 import { BankAuditPanel } from './finance/BankAuditPanel';
 
+import type { DashboardPage } from './TopBar';
+
 interface FinancePageProps {
   onSignOut: () => void;
   userEmail?: string;
-  onNavigate: (page: 'tasks' | 'finance') => void;
+  onNavigate: (page: DashboardPage) => void;
 }
 
 function timeAgo(d: Date) {

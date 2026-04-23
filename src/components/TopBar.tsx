@@ -1,8 +1,10 @@
 import { RefreshCw, LogOut } from 'lucide-react';
 
+export type DashboardPage = 'tasks' | 'finance' | 'collections';
+
 interface TopBarProps {
-  page: 'tasks' | 'finance';
-  onNavigate: (page: 'tasks' | 'finance') => void;
+  page: DashboardPage;
+  onNavigate: (page: DashboardPage) => void;
   onRefresh?: () => void;
   refreshing?: boolean;
   onSignOut: () => void;
@@ -48,6 +50,12 @@ export function TopBar({
             onClick={() => onNavigate('finance')}
           >
             Finance
+          </button>
+          <button
+            className={page === 'collections' ? 'active' : ''}
+            onClick={() => onNavigate('collections')}
+          >
+            Collections
           </button>
         </nav>
       </div>

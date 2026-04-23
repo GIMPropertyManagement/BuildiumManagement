@@ -1,6 +1,7 @@
-import { Skull } from 'lucide-react';
+import { ExternalLink, Skull } from 'lucide-react';
 import type { DashboardData } from '../buildium/metrics';
 import {
+  buildiumTaskUrl,
   categoryLabel,
   daysOverdue,
   daysSinceUpdate,
@@ -16,6 +17,29 @@ interface Props {
 function assigneeName(data: DashboardData, task: BuildiumTask): string {
   const bucket = data.byStaff.find((b) => b.id === (task.AssignedToUserId || 0));
   return bucket?.displayName ?? 'Unassigned';
+}
+
+function TaskLink({ task }: { task: BuildiumTask }) {
+  return (
+    <a
+      className="task-link"
+      href={buildiumTaskUrl(task.Id)}
+      target="_blank"
+      rel="noreferrer"
+      title="Open in Buildium"
+    >
+      <div className="task-title">
+        {task.Title}
+        <ExternalLink
+          size={11}
+          strokeWidth={2}
+          className="task-link-icon"
+          aria-hidden
+        />
+      </div>
+      <div className="task-sub">#{task.Id}</div>
+    </a>
+  );
 }
 
 export function WallOfShame({ data }: Props) {
@@ -35,8 +59,7 @@ export function WallOfShame({ data }: Props) {
         Wall of Shame
       </h3>
       <p className="card-sub">
-        Most neglected open tasks — surface these in standup and they get
-        handled.
+        Most neglected open tasks — click any row to open in Buildium.
       </p>
 
       <h4>Most stale (no updates)</h4>
@@ -56,8 +79,7 @@ export function WallOfShame({ data }: Props) {
           {topStale.map((t) => (
             <tr key={t.Id}>
               <td>
-                <div className="task-title">{t.Title}</div>
-                <div className="task-sub">#{t.Id}</div>
+                <TaskLink task={t} />
               </td>
               <td>{assigneeName(data, t)}</td>
               <td>{categoryLabel(t)}</td>
@@ -97,8 +119,7 @@ export function WallOfShame({ data }: Props) {
               {topOverdue.map((t) => (
                 <tr key={t.Id}>
                   <td>
-                    <div className="task-title">{t.Title}</div>
-                    <div className="task-sub">#{t.Id}</div>
+                    <TaskLink task={t} />
                   </td>
                   <td>{assigneeName(data, t)}</td>
                   <td>{t.DueDate ?? '—'}</td>
