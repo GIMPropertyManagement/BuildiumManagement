@@ -59,7 +59,15 @@ async function buildiumGet(path: string, query: QueryObject): Promise<{
   const clientSecret = process.env.BUILDIUM_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Buildium credentials are not configured. Set BUILDIUM_CLIENT_ID and BUILDIUM_CLIENT_SECRET as Amplify secrets.');
+    // Report presence + length (never the value) so a 401 vs. missing-env
+    // failure is diagnosable from the frontend error banner.
+    throw new Error(
+      `Buildium credentials missing at runtime — ` +
+        `client_id present=${!!clientId} (${(clientId ?? '').length} chars), ` +
+        `client_secret present=${!!clientSecret} (${(clientSecret ?? '').length} chars). ` +
+        `Fix in Amplify Console → App settings → Environment variables (branch scope), ` +
+        `then redeploy. See README "Deploying to Amplify Hosting".`,
+    );
   }
 
   const url = `${baseUrl}${path}${buildQueryString(query)}`;

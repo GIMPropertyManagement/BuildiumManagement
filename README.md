@@ -102,14 +102,35 @@ deploy — `amplify_outputs.json` already wires this up.
 
 1. Push to the GitHub repo.
 2. Connect it in the Amplify console (Hosting).
-3. Set the two secrets per branch:
-   ```bash
-   npx ampx secret set BUILDIUM_CLIENT_ID --branch main
-   npx ampx secret set BUILDIUM_CLIENT_SECRET --branch main
-   ```
-   …or enter them via Amplify console → App settings → Secret manager.
-4. Amplify will run `amplify.yml` — backend first, then `npm run build`. The
-   production bundle routes through the Lambda; `.env` is only used in dev.
+3. **Set credentials as plain environment variables** on the branch (this is
+   the reliable path — see "Credential loading" below):
+   - Amplify Console → your app → **App settings → Environment variables**
+   - Set `BUILDIUM_CLIENT_ID` and `BUILDIUM_CLIENT_SECRET` scoped to `main`
+     (or whichever branch you're deploying).
+4. Trigger a redeploy. Amplify runs `amplify.yml` (backend first, then
+   `npm run build`). The production bundle routes through the Lambda;
+   `.env` is only used in dev.
+
+### Credential loading — two paths, env vars win
+
+[`amplify/functions/buildium-proxy/resource.ts`](amplify/functions/buildium-proxy/resource.ts)
+resolves `BUILDIUM_CLIENT_ID` / `BUILDIUM_CLIENT_SECRET` in this order:
+
+1. If `process.env.BUILDIUM_CLIENT_ID` is present at synth time (i.e. it's
+   set in Amplify Hosting → Environment variables, or locally), use that.
+2. Otherwise fall back to Amplify Gen 2 `secret()` (Secret Manager).
+
+Plain env vars are the primary path because the `secret()` wiring has been
+flaky in deployed builds
+([amplify-backend#2190](https://github.com/aws-amplify/amplify-backend/issues/2190)).
+If the page shows `Authentication failed. Please check your client id and
+secret` from Buildium after a deploy, it usually means `secret()` silently
+resolved empty strings. Fix by setting the same names as plain env vars in
+the Hosting console and redeploying.
+
+If credentials are missing entirely, the Lambda now reports
+`client_id present=false (0 chars)` etc. in the error banner, so you can tell
+"missing" from "wrong".
 
 ## Deploying to Amplify Hosting
 
