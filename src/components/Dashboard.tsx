@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useDashboardData } from '../buildium/useDashboardData';
 import { MetricCard } from './MetricCard';
+import { TopBar } from './TopBar';
 import { Leaderboard } from './Leaderboard';
 import { WallOfShame } from './WallOfShame';
 import { StaffScorecard } from './StaffScorecard';
@@ -34,36 +35,28 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
 
   return (
     <div className="dashboard">
-      <header className="topbar">
-        <div>
-          <h1>Property Management Scoreboard</h1>
-          <p className="subtitle">
-            Live task metrics from Buildium · last refresh{' '}
-            {data ? timeAgo(data.lastUpdated) : '—'}
-          </p>
-        </div>
-        <div className="topbar-actions">
-          <nav className="page-nav">
-            <button className="active">Tasks</button>
-            <button onClick={() => onNavigate('finance')}>Finance</button>
-          </nav>
-          <button onClick={refresh} disabled={loading}>
-            {loading ? 'Refreshing…' : 'Refresh'}
-          </button>
-          <div className="user-chip">
-            <span>{userEmail ?? 'Signed in'}</span>
-            <button className="link-btn" onClick={onSignOut}>
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      <TopBar
+        page="tasks"
+        onNavigate={onNavigate}
+        onRefresh={refresh}
+        refreshing={loading}
+        onSignOut={onSignOut}
+        userEmail={userEmail}
+      />
+
+      <div className="page-head">
+        <h1>Property management scoreboard</h1>
+        <p className="subtitle">
+          Live Buildium task metrics · last refresh{' '}
+          {data ? timeAgo(data.lastUpdated) : '—'}
+        </p>
+      </div>
 
       {error ? (
         <div className="banner banner-error">
           <strong>Couldn't load Buildium data.</strong> {error}
           <div className="banner-hint">
-            If this is first-run, set the Amplify secrets{' '}
+            If this is first-run, set the Amplify env vars{' '}
             <code>BUILDIUM_CLIENT_ID</code> and{' '}
             <code>BUILDIUM_CLIENT_SECRET</code>, then refresh.
           </div>
@@ -76,7 +69,7 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
 
       {data ? (
         <>
-          <section className="metric-row">
+          <section className="grid-row grid-kpi">
             <MetricCard
               label="Open tasks"
               value={data.team.totalOpen}
@@ -93,15 +86,22 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
               label="Stale 7d+"
               value={data.team.totalStale}
               hint="No update in a week"
-              tone={data.team.totalStale > 20 ? 'bad' : data.team.totalStale > 5 ? 'warn' : 'good'}
+              tone={
+                data.team.totalStale > 20
+                  ? 'bad'
+                  : data.team.totalStale > 5
+                    ? 'warn'
+                    : 'good'
+              }
             />
             <MetricCard
-              label="High priority open"
+              label="High priority"
               value={data.team.totalHighPriorityOpen}
+              hint="Still open"
               tone={data.team.totalHighPriorityOpen > 0 ? 'warn' : 'good'}
             />
             <MetricCard
-              label="Closed last 7d"
+              label="Closed · 7d"
               value={data.team.closedLast7}
               hint={`${data.team.createdLast7} created in same window`}
               tone={
@@ -109,12 +109,12 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
               }
             />
             <MetricCard
-              label="Closed last 30d"
+              label="Closed · 30d"
               value={data.team.closedLast30}
               hint={`${data.team.createdLast30} created`}
             />
             <MetricCard
-              label="Avg days to close"
+              label="Avg close (d)"
               value={
                 data.team.avgDaysToClose != null
                   ? data.team.avgDaysToClose.toFixed(1)
@@ -127,16 +127,20 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
               }
             />
             <MetricCard
-              label="Oldest open task"
+              label="Oldest open"
               value={`${data.team.oldestOpenDays}d`}
+              hint="Task age"
               tone={data.team.oldestOpenDays > 60 ? 'bad' : 'warn'}
             />
           </section>
 
-          <section className="two-col">
+          <section className="grid-row grid-2col">
             <Leaderboard rows={data.byStaff} />
             <div className="card team-insight">
               <h3>How the score works</h3>
+              <p className="card-sub">
+                Higher is better. Deferrals don't count as closures.
+              </p>
               <ul>
                 <li>
                   <strong>+10</strong> per task closed in last 30 days
@@ -154,27 +158,24 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
                   <strong>−3</strong> per open high-priority task
                 </li>
                 <li>
-                  <strong>−0.3 per day</strong> on oldest open task age
+                  <strong>−0.3/d</strong> on oldest open task age
                 </li>
               </ul>
-              <p className="note">
-                Scores refresh every 5 minutes. Deferring tasks doesn't count as
-                closing them.
-              </p>
+              <p className="note">Scores refresh every 5 minutes.</p>
             </div>
           </section>
 
-          <section className="chart-row">
+          <section className="grid-row">
             <ThroughputLine team={data.team} />
           </section>
 
-          <section className="chart-row three-col">
+          <section className="grid-row grid-3col">
             <StatusPie team={data.team} />
             <PriorityPie team={data.team} />
             <CategoryBar team={data.team} />
           </section>
 
-          <section className="scorecards-section">
+          <section>
             <div className="section-head">
               <h2>Per-manager scorecards</h2>
               <div className="filter-tabs">
@@ -198,7 +199,7 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
                 </button>
               </div>
             </div>
-            <div className="scorecards-grid">
+            <div className="grid-row grid-scorecards">
               {filtered.map((staff, i) => (
                 <StaffScorecard key={staff.id} staff={staff} rank={i + 1} />
               ))}
@@ -213,9 +214,8 @@ export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) 
           </section>
 
           <footer className="footer">
-            Totals: {data.rawActive.length} active + {data.rawRecentClosed.length}{' '}
-            recently closed tasks analysed. Buildium API rate-limited to 10
-            concurrent req/sec.
+            {data.rawActive.length} active + {data.rawRecentClosed.length}{' '}
+            recently closed tasks analysed · Buildium rate limit 10 req/s
           </footer>
         </>
       ) : null}

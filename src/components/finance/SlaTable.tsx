@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import type { SlaReport } from '../../finance/useFinanceData';
 import { buildiumBankRegisterUrl } from '../../finance/slaAnalyzer';
 
@@ -6,13 +7,10 @@ interface Props {
 }
 
 function statusPill(status: string) {
-  const cls =
-    status === 'OK'
-      ? 'pill status-completed'
-      : status === 'BREACHED'
-        ? 'pill status-breached'
-        : 'pill status-deferred';
-  return <span className={cls}>{status === 'NO_DATA' ? 'No data' : status}</span>;
+  if (status === 'OK') return <span className="pill status-completed">OK</span>;
+  if (status === 'BREACHED')
+    return <span className="pill status-breached">Breached</span>;
+  return <span className="pill status-deferred">No data</span>;
 }
 
 export function SlaTable({ data }: Props) {
@@ -22,12 +20,12 @@ export function SlaTable({ data }: Props) {
 
   return (
     <>
-      <div className="sla-stats">
-        <Stat label="Total" value={summary.total} />
-        <Stat label="Healthy" value={summary.healthy} tone="good" />
-        <Stat label="Breached" value={summary.breached} tone="bad" />
-        <Stat label="No data" value={summary.noData} tone="warn" />
-        <Stat label="Healthy %" value={`${summary.goodPercent}%`} />
+      <div className="stat-strip">
+        <StripCell label="Total" value={summary.total} />
+        <StripCell label="Healthy" value={summary.healthy} tone="good" />
+        <StripCell label="Breached" value={summary.breached} tone="bad" />
+        <StripCell label="No data" value={summary.noData} tone="warn" />
+        <StripCell label="Healthy %" value={`${summary.goodPercent}%`} />
       </div>
 
       {breaches.length ? (
@@ -39,7 +37,7 @@ export function SlaTable({ data }: Props) {
                 <th>Bank account</th>
                 <th>Type</th>
                 <th>Last reconciled</th>
-                <th className="num">Days ago</th>
+                <th className="num">Days</th>
                 <th className="num">SLA</th>
                 <th>Status</th>
                 <th>Note</th>
@@ -49,7 +47,9 @@ export function SlaTable({ data }: Props) {
             <tbody>
               {breaches.map((r) => (
                 <tr key={r.id}>
-                  <td>{r.name}</td>
+                  <td>
+                    <div className="cell-strong">{r.name}</div>
+                  </td>
                   <td>
                     <span className="type-pill">{r.type}</span>
                   </td>
@@ -64,8 +64,9 @@ export function SlaTable({ data }: Props) {
                       target="_blank"
                       rel="noreferrer"
                       className="link-btn-inline"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                     >
-                      Open
+                      Open <ExternalLink size={11} strokeWidth={2} />
                     </a>
                   </td>
                 </tr>
@@ -74,7 +75,9 @@ export function SlaTable({ data }: Props) {
           </table>
         </>
       ) : (
-        <div className="empty success">✅ No breaches. Everything is within SLA.</div>
+        <div className="empty success">
+          ✓ No breaches — everything is within SLA.
+        </div>
       )}
 
       {healthy.length ? (
@@ -86,14 +89,16 @@ export function SlaTable({ data }: Props) {
                 <th>Bank account</th>
                 <th>Type</th>
                 <th>Last reconciled</th>
-                <th className="num">Days ago</th>
+                <th className="num">Days</th>
                 <th className="num">SLA</th>
               </tr>
             </thead>
             <tbody>
               {healthy.map((r) => (
                 <tr key={r.id}>
-                  <td>{r.name}</td>
+                  <td>
+                    <div className="cell-strong">{r.name}</div>
+                  </td>
                   <td>
                     <span className="type-pill">{r.type}</span>
                   </td>
@@ -110,7 +115,7 @@ export function SlaTable({ data }: Props) {
   );
 }
 
-function Stat({
+function StripCell({
   label,
   value,
   tone,
@@ -120,9 +125,9 @@ function Stat({
   tone?: 'good' | 'warn' | 'bad';
 }) {
   return (
-    <div className={`stat stat-inline ${tone ? `stat-${tone}` : ''}`}>
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
+    <div className="strip-cell">
+      <div className={`strip-value ${tone ?? ''}`}>{value}</div>
+      <div className="strip-label">{label}</div>
     </div>
   );
 }

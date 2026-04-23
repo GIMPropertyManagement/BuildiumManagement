@@ -1,3 +1,4 @@
+import { Skull } from 'lucide-react';
 import type { DashboardData } from '../buildium/metrics';
 import {
   categoryLabel,
@@ -29,10 +30,13 @@ export function WallOfShame({ data }: Props) {
 
   return (
     <div className="card wall-of-shame">
-      <h3>☠️ Wall of Shame</h3>
+      <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Skull size={16} strokeWidth={2.2} color="var(--danger)" />
+        Wall of Shame
+      </h3>
       <p className="card-sub">
-        Most neglected open tasks by silence + overdue penalty. Surface these in
-        standup and they get handled.
+        Most neglected open tasks — surface these in standup and they get
+        handled.
       </p>
 
       <h4>Most stale (no updates)</h4>
@@ -43,9 +47,9 @@ export function WallOfShame({ data }: Props) {
             <th>Assignee</th>
             <th>Category</th>
             <th>Status</th>
-            <th>Days silent</th>
-            <th>Age</th>
-            <th>Overdue</th>
+            <th className="num">Silent</th>
+            <th className="num">Age</th>
+            <th className="num">Overdue</th>
           </tr>
         </thead>
         <tbody>
@@ -85,8 +89,8 @@ export function WallOfShame({ data }: Props) {
                 <th>Task</th>
                 <th>Assignee</th>
                 <th>Due</th>
-                <th>Overdue</th>
-                <th>Silent</th>
+                <th className="num">Overdue</th>
+                <th className="num">Silent</th>
               </tr>
             </thead>
             <tbody>

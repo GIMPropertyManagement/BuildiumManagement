@@ -24,9 +24,10 @@ export function StaffScorecard({ staff, rank }: Props) {
 
   return (
     <div className={`scorecard ${health}`}>
+      <div className="scorecard-tone" />
       <div className="scorecard-head">
         <div className="avatar">{initials(staff.displayName)}</div>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div className="scorecard-name">
             {staff.displayName}
             {rank <= 3 ? <span className="rank-badge">#{rank}</span> : null}
@@ -41,16 +42,34 @@ export function StaffScorecard({ staff, rank }: Props) {
 
       <div className="scorecard-grid">
         <Stat label="Open" value={staff.open.length} />
-        <Stat label="Overdue" value={staff.overdue.length} alert={staff.overdue.length > 0} />
-        <Stat label="Stale 7d+" value={staff.stale.length} alert={staff.stale.length > 0} />
-        <Stat label="High-pri open" value={staff.highPriorityOpen.length} alert={staff.highPriorityOpen.length > 0} />
+        <Stat
+          label="Overdue"
+          value={staff.overdue.length}
+          alert={staff.overdue.length > 0}
+        />
+        <Stat
+          label="Stale 7d+"
+          value={staff.stale.length}
+          alert={staff.stale.length > 0}
+        />
+        <Stat
+          label="Hi-pri"
+          value={staff.highPriorityOpen.length}
+          alert={staff.highPriorityOpen.length > 0}
+        />
         <Stat label="Closed 30d" value={staff.closedLast30.length} />
         <Stat label="Closed 7d" value={staff.closedLast7.length} />
         <Stat
-          label="Avg close (d)"
-          value={staff.avgDaysToClose != null ? staff.avgDaysToClose.toFixed(1) : '—'}
+          label="Avg (d)"
+          value={
+            staff.avgDaysToClose != null ? staff.avgDaysToClose.toFixed(1) : '—'
+          }
         />
-        <Stat label="Oldest open" value={`${staff.oldestOpenDays}d`} alert={staff.oldestOpenDays > 30} />
+        <Stat
+          label="Oldest"
+          value={`${staff.oldestOpenDays}d`}
+          alert={staff.oldestOpenDays > 30}
+        />
       </div>
 
       {staff.longestSilenceTask ? (
@@ -63,7 +82,15 @@ export function StaffScorecard({ staff, rank }: Props) {
   );
 }
 
-function Stat({ label, value, alert }: { label: string; value: string | number; alert?: boolean }) {
+function Stat({
+  label,
+  value,
+  alert,
+}: {
+  label: string;
+  value: string | number;
+  alert?: boolean;
+}) {
   return (
     <div className={`stat ${alert ? 'stat-alert' : ''}`}>
       <div className="stat-value">{value}</div>

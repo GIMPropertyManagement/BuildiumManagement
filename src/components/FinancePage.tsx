@@ -1,5 +1,7 @@
+import { RefreshCw } from 'lucide-react';
 import { useFinanceData } from '../finance/useFinanceData';
 import { MetricCard } from './MetricCard';
+import { TopBar } from './TopBar';
 import { SlaTable } from './finance/SlaTable';
 import { ContaminationTable } from './finance/ContaminationTable';
 import { BankAuditPanel } from './finance/BankAuditPanel';
@@ -17,7 +19,20 @@ function timeAgo(d: Date) {
   return `${Math.floor(seconds / 3600)}h ago`;
 }
 
-export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePageProps) {
+function formatMoney(n: number): string {
+  return n.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+}
+
+export function FinancePage({
+  onSignOut,
+  userEmail,
+  onNavigate,
+}: FinancePageProps) {
   const {
     sla,
     contamination,
@@ -27,36 +42,29 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
     runBankAudit,
   } = useFinanceData();
 
-  const anyLoading = sla.loading || contamination.loading || audit.loading;
-
   return (
     <div className="dashboard">
-      <header className="topbar">
-        <div>
-          <h1>Finance Control Room</h1>
-          <p className="subtitle">
-            SLA, contamination and bank-audit signals from Buildium
-          </p>
-        </div>
-        <div className="topbar-actions">
-          <nav className="page-nav">
-            <button onClick={() => onNavigate('tasks')}>Tasks</button>
-            <button className="active">Finance</button>
-          </nav>
-          <div className="user-chip">
-            <span>{userEmail ?? 'Signed in'}</span>
-            <button className="link-btn" onClick={onSignOut}>
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      <TopBar
+        page="finance"
+        onNavigate={onNavigate}
+        onSignOut={onSignOut}
+        userEmail={userEmail}
+      />
 
-      <section className="metric-row">
+      <div className="page-head">
+        <h1>Finance control room</h1>
+        <p className="subtitle">
+          SLA, contamination and bank-audit signals from Buildium
+        </p>
+      </div>
+
+      <section className="grid-row grid-kpi">
         <MetricCard
           label="SLA breaches"
           value={sla.data?.summary.breached ?? (sla.loading ? '…' : '—')}
-          hint={sla.data ? `${sla.data.summary.goodPercent}% healthy` : undefined}
+          hint={
+            sla.data ? `${sla.data.summary.goodPercent}% healthy` : undefined
+          }
           tone={
             !sla.data
               ? 'neutral'
@@ -81,7 +89,7 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
           }
           hint={
             contamination.data
-              ? `${contamination.data.summary.associationsFlagged}/${contamination.data.summary.associationsScanned} associations`
+              ? `${contamination.data.summary.associationsFlagged}/${contamination.data.summary.associationsScanned} assoc.`
               : undefined
           }
           tone={
@@ -96,10 +104,10 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
           label="Contamination exposure"
           value={
             contamination.data
-              ? `$${Math.round(contamination.data.summary.totalExposure).toLocaleString()}`
+              ? formatMoney(contamination.data.summary.totalExposure)
               : '—'
           }
-          hint="Sum of absolute flagged balances"
+          hint="Absolute flagged balances"
           tone={
             contamination.data && contamination.data.summary.totalExposure > 5000
               ? 'bad'
@@ -129,7 +137,7 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
           <div>
             <h2>Reconciliation SLA</h2>
             <p className="card-sub">
-              Operating / Standard = 14 day SLA · Reserve / CD = 31 days. Most
+              Operating / standard = 14 day SLA · Reserve / CD = 31 days. Most
               recent finished reconciliation drives the clock.
             </p>
           </div>
@@ -137,7 +145,12 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
             {sla.data ? (
               <span className="muted">Updated {timeAgo(sla.data.generatedAt)}</span>
             ) : null}
-            <button onClick={refreshSla} disabled={sla.loading}>
+            <button className="icon-btn" onClick={refreshSla} disabled={sla.loading}>
+              <RefreshCw
+                size={12}
+                strokeWidth={2}
+                style={sla.loading ? { animation: 'spin 1s linear infinite' } : undefined}
+              />
               {sla.loading ? 'Scanning…' : 'Refresh'}
             </button>
           </div>
@@ -154,24 +167,34 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
       <section className="card finance-section">
         <div className="finance-section-head">
           <div>
-            <h2>Cross-Entity Contamination</h2>
+            <h2>Cross-entity contamination</h2>
             <p className="card-sub">
               GL balances on an association that reference a different entity's
-              name. Allow-lists hide shared system accounts and GIM-specific
+              name. Allow-lists hide shared system accounts and per-customer
               exemptions.
             </p>
           </div>
           <div className="finance-section-meta">
             {contamination.data ? (
               <span className="muted">
-                As of {contamination.data.asOfDate} · Updated{' '}
+                As of {contamination.data.asOfDate} ·{' '}
                 {timeAgo(contamination.data.generatedAt)}
               </span>
             ) : null}
             <button
+              className="icon-btn"
               onClick={refreshContamination}
               disabled={contamination.loading}
             >
+              <RefreshCw
+                size={12}
+                strokeWidth={2}
+                style={
+                  contamination.loading
+                    ? { animation: 'spin 1s linear infinite' }
+                    : undefined
+                }
+              />
               {contamination.loading ? 'Scanning…' : 'Refresh'}
             </button>
           </div>
@@ -193,18 +216,17 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
       <section className="card finance-section">
         <div className="finance-section-head">
           <div>
-            <h2>Bank Anomaly Audit</h2>
+            <h2>Bank anomaly audit</h2>
             <p className="card-sub">
               Scans the reconciled week (7–14 days ago) against 6 months of
-              history. Flags new vendors and &gt;50% amount spikes. Heuristics
-              only — no AI pass.
+              history. Flags new vendors and &gt;50% amount spikes.
             </p>
           </div>
           <div className="finance-section-meta">
             {audit.data ? (
               <span className="muted">
-                {audit.data.window.auditStart} → {audit.data.window.auditEnd} ·
-                Updated {timeAgo(audit.data.generatedAt)}
+                {audit.data.window.auditStart} → {audit.data.window.auditEnd} ·{' '}
+                {timeAgo(audit.data.generatedAt)}
               </span>
             ) : null}
             <button onClick={runBankAudit} disabled={audit.loading}>
@@ -215,22 +237,23 @@ export function FinancePage({ onSignOut, userEmail, onNavigate }: FinancePagePro
         {audit.error ? <div className="banner banner-error">{audit.error}</div> : null}
         {audit.progress && audit.loading ? (
           <div className="progress">
-            Pulling transactions {audit.progress.done}/{audit.progress.total} accounts
+            Pulling transactions {audit.progress.done}/{audit.progress.total}{' '}
+            accounts
           </div>
         ) : null}
-        {audit.data ? <BankAuditPanel data={audit.data} /> : (
+        {audit.data ? (
+          <BankAuditPanel data={audit.data} />
+        ) : (
           <div className="empty">
-            Audit runs on demand — fetches ~6 months of transactions across every
-            active bank account (a few minutes end-to-end). Hit "Run audit" when
-            you're ready.
+            Audit runs on demand — fetches ~6 months of transactions across
+            every active bank account. Hit "Run audit" when you're ready.
           </div>
         )}
       </section>
 
       <footer className="footer">
-        {anyLoading ? 'Loading finance data…' : 'All reports idle.'} Each
-        report fans out to the Buildium API with bounded concurrency to stay
-        under the 10-req/s rate limit.
+        Each report fans out with bounded concurrency (4 parallel) to stay
+        under Buildium's 10 req/s rate limit.
       </footer>
     </div>
   );

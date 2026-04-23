@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import type { BankAuditReport } from '../../finance/useFinanceData';
 import { bankTransactionUrl } from '../../finance/bankAuditAnalyzer';
 
@@ -14,16 +15,26 @@ function formatMoney(n: number): string {
 }
 
 export function BankAuditPanel({ data }: Props) {
-  const { flags, accountsScanned, accountsWithData, auditTransactionCount, historyTransactionCount } = data;
+  const {
+    flags,
+    accountsScanned,
+    accountsWithData,
+    auditTransactionCount,
+    historyTransactionCount,
+  } = data;
 
   return (
     <>
-      <div className="sla-stats">
-        <Stat label="Accounts scanned" value={accountsScanned} />
-        <Stat label="Accounts w/ txns" value={accountsWithData} />
-        <Stat label="Audit txns" value={auditTransactionCount} />
-        <Stat label="History txns" value={historyTransactionCount} />
-        <Stat label="Anomalies" value={flags.length} tone={flags.length ? 'warn' : 'good'} />
+      <div className="stat-strip">
+        <StripCell label="Accounts scanned" value={accountsScanned} />
+        <StripCell label="Accounts w/ txns" value={accountsWithData} />
+        <StripCell label="Audit txns" value={auditTransactionCount} />
+        <StripCell label="History txns" value={historyTransactionCount} />
+        <StripCell
+          label="Anomalies"
+          value={flags.length}
+          tone={flags.length ? 'warn' : 'good'}
+        />
       </div>
 
       {flags.length ? (
@@ -66,8 +77,9 @@ export function BankAuditPanel({ data }: Props) {
                     target="_blank"
                     rel="noreferrer"
                     className="link-btn-inline"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                   >
-                    Open
+                    Open <ExternalLink size={11} strokeWidth={2} />
                   </a>
                 </td>
               </tr>
@@ -76,14 +88,14 @@ export function BankAuditPanel({ data }: Props) {
         </table>
       ) : (
         <div className="empty success">
-          ✅ No anomalies detected in the audit window.
+          ✓ No anomalies detected in the audit window.
         </div>
       )}
     </>
   );
 }
 
-function Stat({
+function StripCell({
   label,
   value,
   tone,
@@ -93,9 +105,9 @@ function Stat({
   tone?: 'good' | 'warn' | 'bad';
 }) {
   return (
-    <div className={`stat stat-inline ${tone ? `stat-${tone}` : ''}`}>
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
+    <div className="strip-cell">
+      <div className={`strip-value ${tone ?? ''}`}>{value}</div>
+      <div className="strip-label">{label}</div>
     </div>
   );
 }

@@ -24,12 +24,12 @@ export function ContaminationTable({ data }: Props) {
 
   return (
     <>
-      <div className="sla-stats">
-        <Stat label="Scanned" value={summary.associationsScanned} />
-        <Stat label="Flagged" value={summary.associationsFlagged} tone="bad" />
-        <Stat label="Healthy" value={summary.healthy} tone="good" />
-        <Stat label="Total flags" value={summary.totalFlags} />
-        <Stat
+      <div className="stat-strip">
+        <StripCell label="Scanned" value={summary.associationsScanned} />
+        <StripCell label="Flagged" value={summary.associationsFlagged} tone="bad" />
+        <StripCell label="Healthy" value={summary.healthy} tone="good" />
+        <StripCell label="Total flags" value={summary.totalFlags} />
+        <StripCell
           label="Exposure"
           value={formatMoney(summary.totalExposure)}
           tone="bad"
@@ -57,11 +57,13 @@ export function ContaminationTable({ data }: Props) {
             {sorted.map((f) => (
               <tr key={`${f.associationId}-${f.glAccountId}`}>
                 <td>
-                  <div className="task-title">{f.associationName}</div>
+                  <div className="cell-strong">{f.associationName}</div>
                   <div className="task-sub">ID {f.associationId}</div>
                 </td>
                 <td>
-                  <div className="cell-strong">{f.glAccountName}</div>
+                  <div className="cell-strong" style={{ color: 'var(--danger)' }}>
+                    {f.glAccountName}
+                  </div>
                   <div className="task-sub">GL #{f.glAccountId}</div>
                 </td>
                 <td>
@@ -74,14 +76,14 @@ export function ContaminationTable({ data }: Props) {
         </table>
       ) : (
         <div className="empty success">
-          ✅ No cross-entity contamination detected.
+          ✓ No cross-entity contamination detected.
         </div>
       )}
     </>
   );
 }
 
-function Stat({
+function StripCell({
   label,
   value,
   tone,
@@ -91,9 +93,9 @@ function Stat({
   tone?: 'good' | 'warn' | 'bad';
 }) {
   return (
-    <div className={`stat stat-inline ${tone ? `stat-${tone}` : ''}`}>
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
+    <div className="strip-cell">
+      <div className={`strip-value ${tone ?? ''}`}>{value}</div>
+      <div className="strip-label">{label}</div>
     </div>
   );
 }
