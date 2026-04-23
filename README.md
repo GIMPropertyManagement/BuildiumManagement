@@ -44,64 +44,72 @@ Closing tasks rewards you. Deferring or ignoring them hurts. Tweak in
 
 ## Architecture
 
+Two transports, same frontend code — the client picks one based on
+`import.meta.env.DEV`:
+
 ```
-Browser (React+Vite)
-   │  (Cognito-authenticated GraphQL query: buildiumFetch)
-   ▼
-AppSync  ──►  Lambda `buildium-proxy`
-                │ uses Amplify secrets BUILDIUM_CLIENT_ID / BUILDIUM_CLIENT_SECRET
-                ▼
-           api.buildium.com (REST v1)
+DEV (npm run dev)
+  Browser ──► Vite dev server /api/buildium/* ──► api.buildium.com
+              (reads .env, injects x-buildium-client-* headers)
+
+PROD (Amplify Hosting)
+  Browser ──► AppSync buildiumFetch ──► Lambda buildium-proxy ──► api.buildium.com
+              (Cognito-authenticated)    (reads Amplify secrets)
 ```
 
-- Credentials **never** reach the browser — they're Amplify secrets injected
-  into the Lambda's environment.
+- Credentials **never** reach the browser in either mode. Locally they live in
+  `.env` (gitignored); in production they're Amplify secrets injected into the
+  Lambda.
 - The Lambda enforces a strict allow-list of paths (tasks, users, categories,
-  work orders, rentals, associations). No other endpoints can be hit.
-- Lambda supports auto-pagination (`fetchAll: true`) to drain multi-page
-  Buildium collections in one call.
+  work orders, rentals, associations). Local proxy inherits the same safety
+  because Vite's `server.proxy` only exposes the `/api/buildium/*` route.
+- Both transports support auto-pagination to drain multi-page Buildium
+  collections in one logical call.
 - Frontend computes all metrics client-side from the raw task/user payloads —
   no database, no caching layer. Refresh cadence: every 5 minutes + manual.
 
-## First-time setup
+## Running locally (fastest path)
 
 ### 1. Install
 ```bash
 npm install
 ```
 
-### 2. Set Buildium secrets in your Amplify sandbox
+### 2. Create `.env`
+Copy the template and fill in your Buildium keys:
 ```bash
-# one-time (requires AWS credentials configured)
-npx ampx sandbox secret set BUILDIUM_CLIENT_ID
-# paste your client id when prompted
-
-npx ampx sandbox secret set BUILDIUM_CLIENT_SECRET
-# paste your client secret when prompted
+cp .env.example .env
+# then edit .env with your BUILDIUM_CLIENT_ID / BUILDIUM_CLIENT_SECRET
 ```
+`.env` is gitignored. The values are read by `vite.config.ts` server-side and
+injected as request headers on the `/api/buildium/*` proxy — they never end
+up in the client bundle.
 
-For a deployed (non-sandbox) branch in Amplify Hosting:
-```bash
-npx ampx secret set BUILDIUM_CLIENT_ID --branch main
-npx ampx secret set BUILDIUM_CLIENT_SECRET --branch main
-```
-…or enter them via the Amplify console → App settings → Secret manager.
-
-### 3. Start the backend sandbox (one terminal)
-```bash
-npm run sandbox
-```
-This provisions Cognito, AppSync, and the Lambda into your AWS account and
-watches for changes. It also writes `amplify_outputs.json` which the frontend
-imports.
-
-### 4. Start the frontend (another terminal)
+### 3. Run
 ```bash
 npm run dev
 ```
+Open the URL Vite prints. The first time you'll need to sign up (email +
+password) against the Cognito pool that was set up in the earlier sandbox
+deploy — `amplify_outputs.json` already wires this up.
 
-Open the URL Vite prints, create an account (email + password, verified by
-code), and you're in.
+> If `amplify_outputs.json` doesn't exist yet, run `npm run sandbox` once to
+> provision Cognito + AppSync + the Lambda into your AWS account. After that,
+> local dev doesn't need the sandbox running — the Vite proxy handles
+> everything.
+
+## Deploying to Amplify Hosting
+
+1. Push to the GitHub repo.
+2. Connect it in the Amplify console (Hosting).
+3. Set the two secrets per branch:
+   ```bash
+   npx ampx secret set BUILDIUM_CLIENT_ID --branch main
+   npx ampx secret set BUILDIUM_CLIENT_SECRET --branch main
+   ```
+   …or enter them via Amplify console → App settings → Secret manager.
+4. Amplify will run `amplify.yml` — backend first, then `npm run build`. The
+   production bundle routes through the Lambda; `.env` is only used in dev.
 
 ## Deploying to Amplify Hosting
 
@@ -113,6 +121,8 @@ code), and you're in.
 ## File layout
 
 ```
+.env.example                       Template for local creds (copy to .env)
+vite.config.ts                     Dev-only proxy: /api/buildium/* → Buildium
 amplify/
   auth/resource.ts                 Cognito user pool (email login)
   data/resource.ts                 GraphQL schema + custom buildiumFetch query
@@ -124,7 +134,7 @@ src/
   App.tsx                          Authenticator wrapper → Dashboard
   buildium/
     types.ts                       Hand-rolled Buildium response types
-    client.ts                      Wraps the AppSync query; fetchTasks etc.
+    client.ts                      Dual-transport fetcher (dev proxy vs Lambda)
     metrics.ts                     computeMetrics — all the math lives here
     useDashboardData.ts            Data-loading hook (30-day window, refresh)
   components/

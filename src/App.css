@@ -332,6 +332,134 @@
   font-size: 0.8rem;
 }
 
+/* Page nav */
+.page-nav {
+  display: inline-flex;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+.page-nav button {
+  background: transparent;
+  color: var(--text-dim);
+  padding: 0.35rem 0.75rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+}
+.page-nav button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Finance section */
+.finance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.finance-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.finance-section-head h2 {
+  margin-bottom: 0.2rem;
+}
+.finance-section-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.muted {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.banner-warn {
+  background: rgba(244, 169, 61, 0.14);
+  border: 1px solid rgba(244, 169, 61, 0.35);
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+
+.progress {
+  padding: 0.6rem 0.8rem;
+  background: var(--panel-alt);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.sla-stats {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.stat-inline {
+  min-width: 110px;
+  padding: 0.6rem 0.8rem;
+}
+.stat-good { background: rgba(48, 165, 111, 0.12); }
+.stat-warn { background: rgba(244, 169, 61, 0.12); }
+.stat-bad { background: rgba(255, 77, 77, 0.12); }
+
+.type-pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+
+.pill.status-breached {
+  background: rgba(255, 77, 77, 0.2);
+  color: var(--bad);
+}
+
+.cell-strong {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.empty.success {
+  background: rgba(48, 165, 111, 0.08);
+  color: var(--good);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.link-btn-inline {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.link-btn-inline:hover {
+  text-decoration: underline;
+}
+
+.healthy-details {
+  margin-top: 0.9rem;
+}
+.healthy-details summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+}
+.healthy-details[open] summary {
+  margin-bottom: 0.5rem;
+}
+
 /* Amplify Authenticator container */
 [data-amplify-authenticator] {
   min-height: 100vh;

@@ -10,6 +10,7 @@ import type { StaffMetrics } from '../buildium/metrics';
 interface DashboardProps {
   onSignOut: () => void;
   userEmail?: string;
+  onNavigate: (page: 'tasks' | 'finance') => void;
 }
 
 function timeAgo(d: Date) {
@@ -19,7 +20,7 @@ function timeAgo(d: Date) {
   return `${Math.floor(seconds / 3600)}h ago`;
 }
 
-export function Dashboard({ onSignOut, userEmail }: DashboardProps) {
+export function Dashboard({ onSignOut, userEmail, onNavigate }: DashboardProps) {
   const { data, loading, error, refresh } = useDashboardData();
   const [filter, setFilter] = useState<'all' | 'staff' | 'unassigned'>('staff');
 
@@ -42,6 +43,10 @@ export function Dashboard({ onSignOut, userEmail }: DashboardProps) {
           </p>
         </div>
         <div className="topbar-actions">
+          <nav className="page-nav">
+            <button className="active">Tasks</button>
+            <button onClick={() => onNavigate('finance')}>Finance</button>
+          </nav>
           <button onClick={refresh} disabled={loading}>
             {loading ? 'Refreshing…' : 'Refresh'}
           </button>

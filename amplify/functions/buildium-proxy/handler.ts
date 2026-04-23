@@ -20,6 +20,14 @@ const ALLOWED_PATH_PATTERNS: RegExp[] = [
   /^\/v1\/associations\/\d+$/,
   /^\/v1\/workorders$/,
   /^\/v1\/workorders\/\d+$/,
+  // Finance endpoints (read-only, credentials scoped view-only)
+  /^\/v1\/bankaccounts$/,
+  /^\/v1\/bankaccounts\/\d+$/,
+  /^\/v1\/bankaccounts\/\d+\/transactions$/,
+  /^\/v1\/bankaccounts\/\d+\/reconciliations$/,
+  /^\/v1\/glaccounts$/,
+  /^\/v1\/glaccounts\/\d+$/,
+  /^\/v1\/glaccounts\/balances$/,
 ];
 
 function isAllowed(path: string): boolean {
