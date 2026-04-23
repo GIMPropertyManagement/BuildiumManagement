@@ -1,19 +1,22 @@
 {
-  "name": "amplify-vite-react-template",
+  "name": "buildium-management-dashboard",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sandbox": "npx ampx sandbox"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "~6.13.2",
     "aws-amplify": "~6.15.10",
+    "date-fns": "~4.1.0",
     "react": "~18.3.1",
-    "react-dom": "~18.3.1"
+    "react-dom": "~18.3.1",
+    "recharts": "~2.15.4"
   },
   "engines": {
     "node": ">= 20.20.0",
@@ -22,9 +25,11 @@
   "devDependencies": {
     "@aws-amplify/backend": "~1.19.0",
     "@aws-amplify/backend-cli": "~1.8.1",
-    "@eslint/compat":  "~2.0.1",
+    "@eslint/compat": "~2.0.1",
     "@eslint/eslintrc": "~3.3.3",
     "@eslint/js": "~9.39.2",
+    "@types/aws-lambda": "~8.10.147",
+    "@types/node": "^20.19.39",
     "@types/react": "~18.3.27",
     "@types/react-dom": "~18.3.7",
     "@typescript-eslint/eslint-plugin": "~8.53.0",
